@@ -1,0 +1,59 @@
+name: Product Price Monitor
+
+on:
+  schedule:
+    - cron: '0 7 * * *'
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    
+    # Nadajemy uprawnienia do modyfikacji plików w repozytorium
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Install Playwright Browsers
+      run: |
+        playwright install chromium --with-deps
+
+    - name: Run Scraper and Send Mail
+      env:
+        # Przekazujemy zabezpieczone sekrety do skryptu Pythona
+        SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+        SMTP_PORT: ${{ secrets.SMTP_PORT }}
+        SMTP_USER: ${{ secrets.SMTP_USER }}
+        SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+        RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+      run: |
+        python main.py
+
+    - name: Commit and Push History Changes
+      run: |
+        # Konfigurujemy fikcyjnego użytkownika gita do wykonania commita
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        
+        # Sprawdzamy czy plik z historią w ogóle się zmienił
+        git add prices_history.json
+        if ! git diff --cached --quiet; then
+          git commit -m "Uaktualnienie historii cen [skip ci]"
+          git push
+        else
+          echo "Brak zmian w cenach. Nie ma potrzeby robić commita."
+        fi
