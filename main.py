@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+import random
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -122,7 +123,8 @@ async def main():
         if price:
             current_prices[store] = price
             
-        await asyncio.sleep(3) 
+        wait_time = random.uniform(4.0, 8.0)
+        await asyncio.sleep(wait_time)
 
     save_history(current_prices)
     send_email_report(current_prices, previous_prices)
