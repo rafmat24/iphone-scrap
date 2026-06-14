@@ -7,7 +7,7 @@ on:
 
 jobs:
   scrape:
-    runs-on: ubuntu-22.04
+    runs-on: 'cubi-1'
     
     # Nadajemy uprawnienia do modyfikacji plików w repozytorium
     permissions:
@@ -20,7 +20,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.11'
+        python-version: '3.13'
         cache: 'pip'
 
     - name: Install dependencies
@@ -34,14 +34,13 @@ jobs:
 
     - name: Run Scraper and Send Mail
       env:
-        # Przekazujemy zabezpieczone sekrety do skryptu Pythona
         SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
         SMTP_PORT: ${{ secrets.SMTP_PORT }}
         SMTP_USER: ${{ secrets.SMTP_USER }}
         SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
         RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
       run: |
-        xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" python main.py
+        python main.py
         
 
     - name: Commit and Push History Changes
@@ -58,3 +57,22 @@ jobs:
         else
           echo "Brak zmian w cenach. Nie ma potrzeby robić commita."
         fi
+
+    - name: Workspace cleanup
+      if: always()
+      run: |
+        set -eux
+
+        # Remove Playwright caches and browsers
+        rm -rf "$HOME/.cache/ms-playwright" || true
+
+        # Purge pip cache
+        python -m pip cache purge || true
+
+        # Remove runner workspace files (preserve .git)
+        if [ -n "$GITHUB_WORKSPACE" ]; then
+          find "$GITHUB_WORKSPACE" -maxdepth 1 -mindepth 1 ! -name .git -exec rm -rf {} + || true
+        fi
+
+        # Clear temporary files
+        rm -rf /tmp/* || true

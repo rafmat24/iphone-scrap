@@ -10,13 +10,7 @@ class BaseScraper:
     async def scrape_price(self) -> float:
         async with async_playwright() as p:
             # Uruchamiamy chromium w trybie headless
-            browser = await p.chromium.launch(
-                headless=False, # Zmieniamy na False!
-                args=[
-                    "--disable-blink-features=AutomationControlled",
-                    "--no-sandbox"
-              ]
-        )
+            browser = await p.chromium.launch(headless=True)
             
             # Tworzymy kontekst z realistycznym User-Agentem
             context = await browser.new_context(
