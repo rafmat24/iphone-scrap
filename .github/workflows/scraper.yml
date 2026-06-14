@@ -41,7 +41,8 @@ jobs:
         SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
         RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
       run: |
-        python main.py
+        xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" python main.py
+        
 
     - name: Commit and Push History Changes
       run: |
