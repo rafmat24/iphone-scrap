@@ -31,7 +31,7 @@ def send_email_report(current_prices, previous_prices):
         return
 
     subject = "📊 Raport cen: iPhone 17 Pro 512GB Silver"
-    
+
     html_content = """
     <html>
     <body style="font-family: Arial, sans-serif; color: #333;">
@@ -42,21 +42,21 @@ def send_email_report(current_prices, previous_prices):
                 <th align="left">Sklep</th>
                 <th align="left">Aktualna cena</th>
                 <th align="left">Status / Zmiana</th>
+                <th align="left">Link</th>
             </tr>
     """
 
     any_changes = False
-
-    for store in PRODUCTS_CONFIG.keys():
+    for store, info in PRODUCTS_CONFIG.items():
         price = current_prices.get(store)
         prev_price = previous_prices.get(store)
+        store_url = info.get("url", "")
 
         if price is None:
             price_text = "Błąd pobierania"
             status_text = "<span style='color: gray;'>-</span>"
         else:
             price_text = f"{price:.2f} PLN"
-            
             if prev_price is None:
                 status_text = "<span style='color: blue;'>Pierwszy pomiar</span>"
             elif price < prev_price:
@@ -70,11 +70,17 @@ def send_email_report(current_prices, previous_prices):
             else:
                 status_text = "<span style='color: #666;'>Bez zmian</span>"
 
+        if store_url:
+            link_text = f"<a href='{store_url}' target='_blank' rel='noopener noreferrer'>Zobacz ofertę</a>"
+        else:
+            link_text = "-"
+
         html_content += f"""
             <tr>
                 <td><strong>{store}</strong></td>
                 <td>{price_text}</td>
                 <td>{status_text}</td>
+                <td>{link_text}</td>
             </tr>
         """
 
@@ -119,10 +125,10 @@ async def main():
         print(f"Sprawdzam {store}...")
         scraper = info["class"](store, info["url"], **info["args"])
         price = await scraper.scrape_price()
-        
+
         if price:
             current_prices[store] = price
-            
+
         wait_time = random.uniform(4.0, 8.0)
         await asyncio.sleep(wait_time)
 
