@@ -24,14 +24,12 @@ class BaseScraper:
             await stealth_async(page)
             
             try:
-                # Zwiększamy timeout do 30 sekund i czekamy na załadowanie sieci
-                await page.goto(self.url, wait_until="domcontentloaded", timeout=30000)
-                await page.wait_for_timeout(3000)  # Dodatkowe oczekiwanie, aby upewnić się, że wszystkie elementy są załadowane
-                
-                # Wywołujemy logikę specyficzną dla danego sklepu
+                await page.goto(self.url, wait_until="networkidle", timeout=30000)
+                await page.screenshot(path=f"debug_{self.store_name}.png", full_page=True)
                 price = await self.extract_price(page)
                 return price
             except Exception as e:
+                await page.screenshot(path=f"debug_{self.store_name}.png", full_page=True)
                 print(f"[{self.store_name}] Błąd podczas pobierania: {e}")
                 return None
             finally:
