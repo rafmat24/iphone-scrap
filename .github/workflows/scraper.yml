@@ -41,7 +41,7 @@ jobs:
         SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
         RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
       run: |
-        python find_selectors.py
+        python main.py
 
     - name: Commit and Push History Changes
       run: |
@@ -58,14 +58,14 @@ jobs:
           echo "Brak zmian w cenach. Nie ma potrzeby robić commita."
         fi
     
-    - name: Upload selector debug output
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: selector-debug
-        path: |
-          selector_debug_*.html
-          selector_debug_*.png
+    # - name: Upload selector debug output
+    #   if: always()
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: selector-debug
+    #     path: |
+    #       selector_debug_*.html
+    #       selector_debug_*.png
 
     - name: Workspace cleanup
       if: always()
