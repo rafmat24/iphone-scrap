@@ -25,7 +25,7 @@ class BaseScraper:
             
             try:
                 # Zwiększamy timeout do 30 sekund i czekamy na załadowanie sieci
-                await page.goto(self.url, wait_until="domcontentloaded", timeout=30000)
+                await page.goto(self.url, wait_until="networkidle", timeout=30000)
                 
                 # Wywołujemy logikę specyficzną dla danego sklepu
                 price = await self.extract_price(page)

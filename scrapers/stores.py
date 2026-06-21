@@ -7,7 +7,7 @@ class StandardScraper(BaseScraper):
         self.selector = selector
 
     async def extract_price(self, page) -> float:
-        element = await page.wait_for_selector(self.selector, timeout=7000)
+        element = await page.wait_for_selector(self.selector, timeout=20000)
         raw_price = await element.inner_text()
         return self.clean_price(raw_price)
 
@@ -19,7 +19,7 @@ class SplitPriceScraper(BaseScraper):
         self.cents_selector = cents_selector
 
     async def extract_price(self, page) -> float:
-        main_element = await page.wait_for_selector(self.main_selector, timeout=7000)
+        main_element = await page.wait_for_selector(self.main_selector, timeout=20000)
         main_text = await main_element.inner_text()
         
         try:
