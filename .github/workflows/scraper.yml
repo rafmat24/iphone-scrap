@@ -32,7 +32,8 @@ jobs:
       run: |
         playwright install chromium --with-deps
 
-    - name: Run Scraper and Send Mail
+    # - name: Run Scraper and Send Mail
+    - name: Run selector finder
       env:
         SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
         SMTP_PORT: ${{ secrets.SMTP_PORT }}
@@ -40,8 +41,7 @@ jobs:
         SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
         RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
       run: |
-        python main.py
-        
+        python find_selectors.py
 
     - name: Commit and Push History Changes
       run: |
@@ -58,12 +58,14 @@ jobs:
           echo "Brak zmian w cenach. Nie ma potrzeby robić commita."
         fi
     
-    - name: Upload debug screenshots
+    - name: Upload selector debug output
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: debug-screenshots
-        path: debug_*.png
+        name: selector-debug
+        path: |
+          selector_debug_*.html
+          selector_debug_*.png
 
     - name: Workspace cleanup
       if: always()
