@@ -11,8 +11,13 @@ class StandardScraper(BaseScraper):
     async def extract_price(self, page) -> float:
         # .first avoids "strict mode" failures if a selector matches more
         # than one element on the page (e.g. duplicate price blocks).
+        # We wait for "attached" rather than "visible": some stores
+        # (e.g. Komputronik) legitimately render the correct price inside
+        # a node that's hidden (alternate layout, hover-card duplicate,
+        # etc.) - the text is still correct, visibility just isn't a
+        # reliable signal here.
         element = page.locator(self.selector).first
-        await element.wait_for(state="visible", timeout=20000)
+        await element.wait_for(state="attached", timeout=20000)
         raw_price = await element.inner_text()
         return self.clean_price(raw_price)
 
@@ -26,7 +31,7 @@ class SplitPriceScraper(BaseScraper):
 
     async def extract_price(self, page) -> float:
         main_locator = page.locator(self.main_selector).first
-        await main_locator.wait_for(state="visible", timeout=20000)
+        await main_locator.wait_for(state="attached", timeout=20000)
         main_text = await main_locator.inner_text()
 
         # The "whole" part sometimes already ends in its own separator
@@ -43,7 +48,7 @@ class SplitPriceScraper(BaseScraper):
         cents_locator = page.locator(self.cents_selector).first
         try:
             if await cents_locator.count() > 0:
-                await cents_locator.wait_for(state="visible", timeout=3000)
+                await cents_locator.wait_for(state="attached", timeout=3000)
                 candidate = (await cents_locator.inner_text()).strip()
                 if candidate.isdigit():
                     cents_text = candidate
