@@ -1,8 +1,13 @@
 {
-    "X-Kom": 6439.0,
-    "Morele": 6798.99,
-    "Komputronik": 6439.0,
-    "Neonet": 6439.0,
-    "MediaExpert": 6449.53,
-    "MediaMarkt": 6449.0
+    "iPhone 17 Pro 512GB Silver": {
+        "X-Kom": 6439.0,
+        "Morele": 6798.99,
+        "Komputronik": 6439.0,
+        "Neonet": 6439.0,
+        "MediaExpert": 6449.53,
+        "MediaMarkt": 6449.0
+    },
+    "BOSCH OptiMUM Seria 8 MUMS8ZS60": {
+        "MediaExpert": 3999.99
+    }
 }
