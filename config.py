@@ -24,42 +24,51 @@ HISTORY_FILE = "prices_history.json"
 # ---------------------------------------------------------------------------
 
 PRODUCTS_CONFIG = {
-    "X-Kom": {
-        "class": AriaPriceScraper,
-        "url": "https://www.x-kom.pl/p/1362361-smartfon-telefon-apple-iphone-17-pro-512gb-srebrny.html",
-        "args": {"selector": "[data-name='productPrice'] span[aria-label^='Cena:']"}
+    "iPhone 17 Pro 512GB Silver": {
+        "X-Kom": {
+            "class": AriaPriceScraper,
+            "url": "https://www.x-kom.pl/p/1362361-smartfon-telefon-apple-iphone-17-pro-512gb-srebrny.html",
+            "args": {"selector": "[data-name='productPrice'] span[aria-label^='Cena:']"}
+        },
+        "Morele": {
+            "class": StandardScraper,
+            "url": "https://www.morele.net/smartfon-apple-iphone-17-pro-5g-12-512gb-srebrny-mg8k4ql-a-15662750/",
+            "args": {"selector": "#product_price"}
+        },
+        "Komputronik": {
+            "class": StandardScraper,
+            "url": "https://www.komputronik.pl/product/983042/telefon-apple-iphone-17-pro-512gb-srebrny.html",
+            "args": {"selector": "div[data-price-type='final']"}
+        },
+        "Neonet": {
+            "class": AriaPriceScraper,
+            "url": "https://www.neonet.pl/p/1362361-smartfon-apple-iphone-17-pro-512gb-srebrny.html",
+            "args": {"selector": "[data-name='productPrice'] span[aria-label^='Cena:']"}
+        },
+        "MediaExpert": {
+            "class": SplitPriceScraper,
+            "url": "https://www.mediaexpert.pl/smartfony-i-zegarki/smartfony/smartfon-apple-iphone-17-pro-5g-silver-512gb",
+            "args": {"main_selector": "div.main-price[aria-label] span.whole", "cents_selector": "div.main-price[aria-label] span.cents"}
+        },
+        "Euro RTV AGD": {
+            "class": SplitPriceScraper,
+            "url": "https://www.euro.com.pl/telefony-komorkowe/apple-iphone-17-pro-512gb-srebrny.bhtml",
+            "args": {"main_selector": "div.price-normal__value", "cents_selector": "sup.price-normal__rest"}
+            # Selector left as-is: site is WAF-blocking the CI runner's IP before
+            # any HTML is served, so there's currently nothing for a selector to
+            # match. Revisit once a network-level fix is in place.
+        },
+        "MediaMarkt": {
+            "class": SplitPriceScraper,
+            "url": "https://mediamarkt.pl/pl/product/_smartfon-apple-iphone-17-pro-5g-512-gb-srebrny-mg8k4hxa-1498053.html",
+            "args": {"main_selector": "span[data-test='branded-price-whole-value']", "cents_selector": "span[data-test='branded-price-decimal-value']"}
+        }
     },
-    "Morele": {
-        "class": StandardScraper,
-        "url": "https://www.morele.net/smartfon-apple-iphone-17-pro-5g-12-512gb-srebrny-mg8k4ql-a-15662750/",
-        "args": {"selector": "#product_price"}
-    },
-    "Komputronik": {
-        "class": StandardScraper,
-        "url": "https://www.komputronik.pl/product/983042/telefon-apple-iphone-17-pro-512gb-srebrny.html",
-        "args": {"selector": "div[data-price-type='final']"}
-    },
-    "Neonet": {
-        "class": AriaPriceScraper,
-        "url": "https://www.neonet.pl/p/1362361-smartfon-apple-iphone-17-pro-512gb-srebrny.html",
-        "args": {"selector": "[data-name='productPrice'] span[aria-label^='Cena:']"}
-    },
-    "MediaExpert": {
-        "class": SplitPriceScraper,
-        "url": "https://www.mediaexpert.pl/smartfony-i-zegarki/smartfony/smartfon-apple-iphone-17-pro-5g-silver-512gb",
-        "args": {"main_selector": "div.main-price[aria-label] span.whole", "cents_selector": "div.main-price[aria-label] span.cents"}
-    },
-    "Euro RTV AGD": {
-        "class": SplitPriceScraper,
-        "url": "https://www.euro.com.pl/telefony-komorkowe/apple-iphone-17-pro-512gb-srebrny.bhtml",
-        "args": {"main_selector": "div.price-normal__value", "cents_selector": "sup.price-normal__rest"}
-        # Selector left as-is: site is WAF-blocking the CI runner's IP before
-        # any HTML is served, so there's currently nothing for a selector to
-        # match. Revisit once a network-level fix is in place.
-    },
-    "MediaMarkt": {
-        "class": SplitPriceScraper,
-        "url": "https://mediamarkt.pl/pl/product/_smartfon-apple-iphone-17-pro-5g-512-gb-srebrny-mg8k4hxa-1498053.html",
-        "args": {"main_selector": "span[data-test='branded-price-whole-value']", "cents_selector": "span[data-test='branded-price-decimal-value']"}
+    "BOSCH OptiMUM Seria 8 MUMS8ZS60": {
+        "MediaExpert": {
+            "class": SplitPriceScraper,
+            "url": "https://www.mediaexpert.pl/agd-male/do-kuchni/roboty-kuchenne/robot-planetarny-bosch-mums8zs60",
+            "args": {"main_selector": "div.main-price[aria-label] span.whole", "cents_selector": "div.main-price[aria-label] span.cents"}
+        }
     }
 }

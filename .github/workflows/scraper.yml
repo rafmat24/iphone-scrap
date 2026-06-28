@@ -9,7 +9,7 @@ jobs:
   scrape:
     runs-on: 'cubi-1'
     
-    # Nadajemy uprawnienia do modyfikacji plików w repozytorium
+    # Grant permissions to modify repository files
     permissions:
       contents: write
 
@@ -52,10 +52,10 @@ jobs:
         # Sprawdzamy czy plik z historią w ogóle się zmienił
         git add prices_history.json
         if ! git diff --cached --quiet; then
-          git commit -m "Uaktualnienie historii cen [skip ci]"
+          git commit -m "Update price history [skip ci]"
           git push
         else
-          echo "Brak zmian w cenach. Nie ma potrzeby robić commita."
+          echo "No price changes detected. No commit needed."
         fi
     
     # - name: Upload selector debug output

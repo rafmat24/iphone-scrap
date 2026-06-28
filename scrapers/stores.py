@@ -3,7 +3,7 @@ from scrapers.base_scraper import BaseScraper
 
 
 class StandardScraper(BaseScraper):
-    """Dla sklepów, gdzie cała cena jest w jednym elemencie tekstowym."""
+    """For stores where the full price is contained in a single text element."""
     def __init__(self, store_name, url, selector):
         super().__init__(store_name, url)
         self.selector = selector
@@ -23,7 +23,7 @@ class StandardScraper(BaseScraper):
 
 
 class SplitPriceScraper(BaseScraper):
-    """Dla sklepów, które rozbijają złote i grosze na osobne tagi HTML (np. MediaExpert, Euro, MediaMarkt)."""
+    """For stores that split whole and cents parts into separate HTML tags (e.g. MediaExpert, Euro, MediaMarkt)."""
     def __init__(self, store_name, url, main_selector, cents_selector):
         super().__init__(store_name, url)
         self.main_selector = main_selector
@@ -61,11 +61,10 @@ class SplitPriceScraper(BaseScraper):
 
 class AriaPriceScraper(BaseScraper):
     """
-    Dla sklepów (np. X-Kom, Neonet), gdzie najbardziej niezawodna cena
-    znajduje się w atrybucie aria-label elementu dla czytników ekranu,
-    np. aria-label="Cena: 6 799,00 zł", zamiast w jego widocznym tekście.
-    Ten element bywa wizualnie ukryty (sr-only), dlatego nie czekamy na
-    state="visible", tylko state="attached" - wystarczy, że jest w DOM.
+    For stores (e.g. X-Kom, Neonet) where the most reliable price is in the
+    aria-label attribute of an element intended for screen readers.
+    The label may contain a Polish prefix and may be visually hidden
+    (sr-only), so we wait for state="attached" instead of state="visible".
     """
     def __init__(self, store_name, url, selector):
         super().__init__(store_name, url)

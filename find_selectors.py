@@ -31,13 +31,15 @@ from config import PRODUCTS_CONFIG
 # If you don't know it for a store, leave it as None and the script
 # will instead dump all elements containing "zł" near the top of the page.
 KNOWN_PRICES = {
-    "X-Kom": "6799",
-    "Morele": "6799",
-    "Komputronik": "6439",
-    "Neonet": "6799",
-    "MediaExpert": "6799",
-    "Euro RTV AGD": None,  # blocked by WAF, skip — won't help until unblocked
-    "MediaMarkt": "6799",
+    "iPhone 17 Pro 512GB Silver": {
+        "X-Kom": "6799",
+        "Morele": "6799",
+        "Komputronik": "6439",
+        "Neonet": "6799",
+        "MediaExpert": "6799",
+        "Euro RTV AGD": None,  # blocked by WAF, skip — won't help until unblocked
+        "MediaMarkt": "6799",
+    }
 }
 
 
@@ -58,43 +60,40 @@ def build_selector(el_info: dict) -> str:
     return tag
 
 
-async def inspect_store(store, info, browser):
+async def inspect_store(product_name, store, info, browser):
     url = info["url"]
-    if "TUTAJ_WKLEJ" in url:
-        print(f"[{store}] Pominięto - brak URL.")
+    if "PASTE_HERE" in url:
+        print(f"[{product_name} - {store}] Skipped - URL not configured.")
         return
 
-    price_digits = KNOWN_PRICES.get(store)
+    price_digits = KNOWN_PRICES.get(product_name, {}).get(store)
 
     context = await browser.new_context(
         user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
         viewport={"width": 1920, "height": 1080},
-        locale="pl-PL",
+        locale="en-US",
     )
     page = await context.new_page()
     await stealth_async(page)
 
-    print(f"\n=== {store} ===")
+    print(f"\n=== {product_name} / {store} ===")
     try:
         await page.goto(url, wait_until="networkidle", timeout=30000)
     except Exception as e:
-        print(f"[{store}] goto failed/timed out ({e}); continuing with whatever loaded.")
+        print(f"[{product_name} - {store}] goto failed/timed out ({e}); continuing with whatever loaded.")
 
     # Give SPA hydration a little extra buffer beyond networkidle.
     await page.wait_for_timeout(1500)
 
     if price_digits:
-        # Find elements whose normalized text contains the known price digits,
-        # ignoring spaces/non-breaking-spaces/commas used as thousand separators.
         matches = await page.evaluate(
             """(priceDigits) => {
                 function norm(s) {
-                    return (s || "").replace(/[\\s\\u00A0,.]/g, "");
+                    return (s || "").replace(/[\s\u00A0,.]/g, "");
                 }
                 const all = Array.from(document.querySelectorAll("body *"));
                 const results = [];
                 for (const el of all) {
-                    // only leaf-ish nodes: avoid huge containers matching too
                     if (el.children.length > 2) continue;
                     const text = el.textContent || "";
                     if (norm(text).includes(priceDigits) && text.length < 60) {
@@ -114,10 +113,10 @@ async def inspect_store(store, info, browser):
         )
 
         if not matches:
-            print(f"[{store}] No element found containing '{price_digits}'. "
+            print(f"[{product_name} - {store}] No element found containing '{price_digits}'. "
                   f"Price text might differ from screenshot, or page didn't fully render.")
         else:
-            print(f"[{store}] Found {len(matches)} candidate element(s):")
+            print(f"[{product_name} - {store}] Found {len(matches)} candidate element(s):")
             for i, m in enumerate(matches):
                 guess = build_selector({
                     "tag": m["tag"],
@@ -129,25 +128,25 @@ async def inspect_store(store, info, browser):
                       f"data-testid={m['testid']}")
                 print(f"      text: {m['text']!r}")
                 print(f"      suggested selector: {guess}")
-                # save outerHTML for manual inspection
-                fname = f"selector_debug_{store.replace(' ', '_')}_{i}.html"
+                fname = f"selector_debug_{product_name.replace(' ', '_')}_{store.replace(' ', '_')}_{i}.html"
                 with open(fname, "w", encoding="utf-8") as f:
                     f.write(m["outerHTML"])
                 print(f"      saved snippet -> {fname}")
     else:
-        print(f"[{store}] No known price configured, skipping targeted search "
+        print(f"[{product_name} - {store}] No known price configured, skipping targeted search "
               f"(likely blocked — check screenshot).")
 
-    await page.screenshot(path=f"selector_debug_{store.replace(' ', '_')}.png", full_page=False)
+    await page.screenshot(path=f"selector_debug_{product_name.replace(' ', '_')}_{store.replace(' ', '_')}.png", full_page=False)
     await context.close()
 
 
 async def main():
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
-        for store, info in PRODUCTS_CONFIG.items():
-            await inspect_store(store, info, browser)
-            await asyncio.sleep(2)
+        for product_name, stores in PRODUCTS_CONFIG.items():
+            for store, info in stores.items():
+                await inspect_store(product_name, store, info, browser)
+                await asyncio.sleep(2)
         await browser.close()
 
 
